@@ -1,0 +1,8 @@
+# /etc/pubsub_config.sh
+
+export PUBSUB_CREDENTIAL_ID="618260d9181d4d1ead8b4b70a8608ec4"
+export PUBSUB_CREDENTIAL_SECRET="846b5e041cdba312829f167a4719721b74580192b42aa0e29dc39fb46e7aaaece5273e"
+export PUBSUB_ENDPOINT_URL="https://pub-sub.kr-central-2.kakaocloud.com"
+export PUBSUB_DOMAIN_ID="fa22d0db818f48829cf8b7849e3a0a26"
+export PUBSUB_PROJECT_ID="86099dec56044a43ac3f92a40784929b"
+export PUBSUB_TOPIC_NAME="LogTopic-lsh"
