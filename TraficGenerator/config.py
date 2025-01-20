@@ -370,10 +370,10 @@ SEARCH_KEYWORDS = [
 #################################
 # Pub/Sub 설정
 #################################
-ENDPOINT_URL = 'https://pub-sub.kr-central-2.kakaocloud.com' # 문서 참고
-DOMAIN_ID = 'fa22d0db818f48829cf8b7849e3a0a26'      # 프로젝트가 속한 조직 ID, IAM참고
-PROJECT_ID = '0aa67b93c3ec48e587a51c9f842ca407'    # 카카오클라우드 프로젝트 ID, IAM참고
-TOPIC_NAME = 'Test-Topic-lsh'  # 생성한 토픽 이름
+PUBSUB_ENDPOINT_URL = 'https://pub-sub.kr-central-2.kakaocloud.com' # 문서 참고
+PUBSUB_DOMAIN_ID = 'fa22d0db818f48829cf8b7849e3a0a26'      # 프로젝트가 속한 조직 ID, IAM참고
+PUBSUB_PROJECT_ID = '0aa67b93c3ec48e587a51c9f842ca407'    # 카카오클라우드 프로젝트 ID, IAM참고
+PUBSUB_TOPIC_NAME = 'Test-Topic-lsh'  # 생성한 토픽 이름
 
 CREDENTIAL_ID = '23630c9edc9b4a1bad341eee37268557'        # 액세스 키 ID
 CREDENTIAL_SECRET = 'eb2e612b5c85450ece8838d76ea6bb2831d25eb3b00f5d33ee1debab8ab25ce197d94d'  # 보안 액세스 키
