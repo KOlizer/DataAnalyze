@@ -1200,6 +1200,59 @@ def add_review():
 @app.route('/error')
 def error():
     return 1/0
+
+
+
+#################################
+# 메시지 저장 Endpoint
+#################################
+messages_storage = []
+
+@app.route('/push-subscription', methods=['POST'])
+def push_subscription():
+    """
+    외부 Push Subscription 서비스가 메시지를 POST 방식으로 보낼 수 있음
+    수신된 메시지는 JSON 형식으로 처리되며, 메모리에 저장
+    """
+    try:
+        # Parse the incoming JSON payload
+        data = request.get_json()
+
+        if not data:
+            return "Invalid data format. Expected JSON payload.", 400
+
+        # Save the message into the in-memory storage
+        messages_storage.append(data)
+
+        # Log the received message
+        print(f"Received message: {data}")
+
+        return "Message received and stored successfully.", 200
+
+    except Exception as e:
+        print(f"Error while processing push message: {e}")
+        return f"An error occurred: {e}", 500
+
+
+#################################
+# 메시지 조회 Endpoint
+#################################
+
+
+@app.route('/push-messages', methods=['GET'])
+def get_push_messages():
+    """
+    GET 방식으로 저장된 데이터를 JSON 형식으로 반환
+    브라우저 또는 API 클라이언트에서 데이터를 확인
+    """
+    try:
+        # Respond with all stored messages as JSON
+        return jsonify({"messages": messages_storage}), 200
+
+    except Exception as e:
+        print(f"Error while retrieving messages: {e}")
+        return f"An error occurred: {e}", 500
+
     
 
     
