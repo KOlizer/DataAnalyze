@@ -1,29 +1,58 @@
 # config.py
 
+import yaml
 import logging
+import os
 
-#################################
-# 로그 설정
-#################################
-LOG_FILENAME = "traffic_generator.log"
-LOG_LEVEL = logging.INFO
+# YAML 파일 로드
+with open("config.yaml", "r") as f:
+    config = yaml.safe_load(f)
 
-#################################
-# 스레드 및 사용자 수 관련 설정
-#################################
-NUM_USERS = 20         # 시뮬레이션할 사용자(스레드) 수
-MAX_THREADS = 5        # 동시에 실행할 최대 스레드 수
-ACTIONS_PER_USER = 30  # 각 사용자가 수행할 최대 상태 전이 횟수
+# 민감한 정보는 환경 변수에서 로드 (보안 강화)
+CREDENTIAL_ID = os.getenv("CREDENTIAL_ID", config['pubsub']['credential_id'])
+CREDENTIAL_SECRET = os.getenv("CREDENTIAL_SECRET", config['pubsub']['credential_secret'])
 
-#################################
-# API 서버 정보
-#################################
-API_BASE_URL = "http://210.109.52.240/"  # 실제 API 서버 IP/도메인
-TIME_SLEEP_RANGE = (0.1, 1.0)  # 상태 전이 사이의 sleep 시간 범위(초)
+# 공용 설정 로드
+PUBSUB_ENDPOINT = config['pubsub']['endpoint']
+DOMAIN_ID = config['pubsub']['domain_id']
+PROJECT_ID = config['pubsub']['project_id']
+TOPIC_NAME = config['pubsub']['topic_name']
+TOPIC_NAME_MK = config['pubsub']['topic_name_mk']
+TOPIC_DESCRIPTION = config['pubsub']['topic_description']
+TOPIC_RETENTION_DURATION = config['pubsub']['topic_retention_duration']
 
-#################################
-# 엔드포인트 경로
-#################################
+SUBSCRIPTION_NAME = config['subscription']['name']
+
+OBJECT_STORAGE_SUBSCRIPTION_NAME = config['object_storage_subscription']['name']
+OBJECT_STORAGE_BUCKET = config['object_storage_subscription']['bucket']
+OBJECT_STORAGE_EXPORT_INTERVAL_MIN = config['object_storage_subscription']['export_interval_min']
+OBJECT_STORAGE_FILE_PREFIX = config['object_storage_subscription']['file_prefix']
+OBJECT_STORAGE_FILE_SUFFIX = config['object_storage_subscription']['file_suffix']
+OBJECT_STORAGE_CHANNEL_COUNT = config['object_storage_subscription']['channel_count']
+OBJECT_STORAGE_MAX_CHANNEL_COUNT = config['object_storage_subscription']['max_channel_count']
+OBJECT_STORAGE_IS_EXPORT_ENABLED = config['object_storage_subscription']['is_export_enabled']
+
+LOG_FILENAME = config['logging']['filename']
+LOG_LEVEL = getattr(logging, config['logging']['level'].upper(), logging.INFO)
+
+NUM_USERS = config['threads']['num_users']
+MAX_THREADS = config['threads']['max_threads']
+ACTIONS_PER_USER = config['threads']['actions_per_user']
+
+API_BASE_URL = config['api']['base_url']
+TIME_SLEEP_RANGE = (config['api']['time_sleep_range']['min'], config['api']['time_sleep_range']['max'])
+
+AGE_THRESHOLD_YOUNG = config['age_threshold']['young']
+AGE_THRESHOLD_MIDDLE = config['age_threshold']['middle']
+
+# 구독 엔드포인트 URL 구성
+SUBSCRIPTION_ENDPOINT = f"{PUBSUB_ENDPOINT}/v1/domains/{DOMAIN_ID}/projects/{PROJECT_ID}/subscriptions/{SUBSCRIPTION_NAME}/pull"
+
+# 토픽 엔드포인트 URL 구성
+TOPIC_ENDPOINT = f"{PUBSUB_ENDPOINT}/v1/domains/{DOMAIN_ID}/projects/{PROJECT_ID}/topics/{TOPIC_NAME}"
+
+
+# 고유한 설정 (변하지 않는 상수)
 API_ENDPOINTS = {
     "ADD_USER":          "add_user",
     "DELETE_USER":       "delete_user",
@@ -43,16 +72,6 @@ API_ENDPOINTS = {
     "ERROR_PAGE":        "error"
 }
 
-#################################
-# 나이 구간 임계값
-#################################
-AGE_THRESHOLD_YOUNG = 25   # 25세 미만 -> young
-AGE_THRESHOLD_MIDDLE = 50  # 25세 이상 ~ 50세 미만 -> middle
-# 50세 이상 -> old
-
-#################################
-# 상위 상태 전이 표
-#################################
 STATE_TRANSITIONS = {
     # ─────────────────────────────────────
     # A) 비로그인 상태
@@ -111,10 +130,7 @@ STATE_TRANSITIONS = {
     "Done": {}
 }
 
-
-#################################
 # 비로그인 하위머신: ANON_SUB_TRANSITIONS
-#################################
 ANON_SUB_TRANSITIONS = {
     # 하위머신 진입점
     "Anon_Sub_Initial": {
@@ -125,7 +141,7 @@ ANON_SUB_TRANSITIONS = {
         "Anon_Sub_Done":       0.2
     },
 
-    # 메인 페이지 접근( / ) 
+    # 메인 페이지 접근( / )
     "Anon_Sub_Main": {
         # 여기서 그냥 메인 페이지 머무르거나
         "Anon_Sub_Main": 0.1,
@@ -221,10 +237,7 @@ ANON_SUB_TRANSITIONS = {
     "Anon_Sub_Done": {}
 }
 
-
-#################################
-# 로그인 상태에서 발생 가능한 하위머신
-#################################
+# 로그인 상태에서 발생 가능한 하위머신: LOGGED_SUB_TRANSITIONS
 LOGGED_SUB_TRANSITIONS = {
     "Login_Sub_Initial": {
         "Login_Sub_ViewCart":        0.2,
@@ -341,10 +354,7 @@ LOGGED_SUB_TRANSITIONS = {
     "Login_Sub_Done": {}
 }
 
-
-#################################
 # 카테고리 선호도
-#################################
 CATEGORY_PREFERENCE = {
     "F": {
         "young":  ["Fashion", "Electronics", "Books"],
@@ -358,22 +368,9 @@ CATEGORY_PREFERENCE = {
     }
 }
 
-#################################
 # 검색어 목록 (공용)
-#################################
 SEARCH_KEYWORDS = [
     "Bluetooth", "Laptop", "Fashion", "Camera", "Book", "Home",
     "Coffee", "Mouse", "Sneakers", "Bag", "Sunglasses", "Mug",
     "cofee", "blu tooth", "iphon", "labtop", "rayban" # 오타 섞기
 ]
-
-#################################
-# Pub/Sub 설정
-#################################
-PUBSUB_ENDPOINT_URL = 'https://pub-sub.kr-central-2.kakaocloud.com' # 문서 참고
-PUBSUB_DOMAIN_ID = 'fa22d0db818f48829cf8b7849e3a0a26'      # 프로젝트가 속한 조직 ID, IAM참고
-PUBSUB_PROJECT_ID = '86099dec56044a43ac3f92a40784929b'    # 카카오클라우드 프로젝트 ID, IAM참고
-PUBSUB_TOPIC_NAME = 'TestTopic-lsh'  # 생성한 토픽 이름
-
-PUBSUB_CREDENTIAL_ID = '23630c9edc9b4a1bad341eee37268557'        # 액세스 키 ID
-PUBSUB_CREDENTIAL_SECRET = 'eb2e612b5c85450ece8838d76ea6bb2831d25eb3b00f5d33ee1debab8ab25ce197d94d'  # 보안 액세스 키
