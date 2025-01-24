@@ -1,4 +1,5 @@
 # config.py
+# pip install pyyaml 필요
 
 import yaml
 import logging
